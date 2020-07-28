@@ -1,4 +1,4 @@
-const MIN_PLAYERS = 1;
+const MIN_PLAYERS = 2;
 const CHOOSE_DELAY_MS = 2000;
 const RESET_DELAY_MS = 1000;
 
