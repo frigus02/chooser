@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chooser
+spec:
+  selector:
+    matchLabels:
+      app: chooser
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: chooser
+    spec:
+      containers:
+        - name: chooser
+          image: frigus02/chooser
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "5m"
+              memory: "32Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"
+          ports:
+            - containerPort: 80
