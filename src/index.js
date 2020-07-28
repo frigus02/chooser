@@ -16,9 +16,9 @@ resizeCanvas();
 const color = (index, alpha = 1) =>
 	`hsla(${index * 222.5 + 348}, 100%, 51.4%, ${alpha})`;
 
-const pointers = new Map();
+const players = new Map();
 document.addEventListener("pointerdown", (e) => {
-	pointers.set(e.pointerId, {
+	players.set(e.pointerId, {
 		x: e.clientX,
 		y: e.clientY,
 		color: pickUnusedColor(),
@@ -27,9 +27,9 @@ document.addEventListener("pointerdown", (e) => {
 	triggerPlayerChoosing();
 });
 document.addEventListener("pointermove", (e) => {
-	if (pointers.has(e.pointerId)) {
-		pointers.set(e.pointerId, {
-			...pointers.get(e.pointerId),
+	if (players.has(e.pointerId)) {
+		players.set(e.pointerId, {
+			...players.get(e.pointerId),
 			x: e.clientX,
 			y: e.clientY,
 		});
@@ -39,13 +39,13 @@ document.addEventListener("pointerup", (e) => {
 	if (chosenPlayer === e.pointerId) {
 		triggerReset();
 	} else {
-		pointers.delete(e.pointerId);
+		players.delete(e.pointerId);
 		triggerPlayerChoosing();
 	}
 });
 
 const pickUnusedColor = () => {
-	const alreadyChosenColors = Array.from(pointers.values()).map(
+	const alreadyChosenColors = Array.from(players.values()).map(
 		(p) => p.color
 	);
 	let color = 0;
@@ -58,22 +58,22 @@ const pickUnusedColor = () => {
 
 let chosenPlayer;
 const choosePlayer = () => {
-	if (pointers.size < MIN_PLAYERS) return;
+	if (players.size < MIN_PLAYERS) return;
 
-	const choosen = Math.floor(Math.random() * pointers.size);
-	chosenPlayer = Array.from(pointers.keys())[choosen];
+	const choosen = Math.floor(Math.random() * players.size);
+	chosenPlayer = Array.from(players.keys())[choosen];
 };
 let choosePlayerTimeout;
 const triggerPlayerChoosing = () => {
 	window.clearTimeout(choosePlayerTimeout);
-	if (chosenPlayer === undefined && pointers.size >= MIN_PLAYERS) {
+	if (chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
 		choosePlayerTimeout = window.setTimeout(choosePlayer, CHOOSE_DELAY_MS);
 	}
 };
 
 const reset = () => {
 	chosenPlayer = undefined;
-	pointers.clear();
+	players.clear();
 };
 let resetTimeout;
 const triggerReset = () => {
@@ -102,7 +102,7 @@ window.requestAnimationFrame(function draw() {
 	if (chosenPlayer !== undefined) {
 		// Chosen Player
 		description.hidden = true;
-		const player = pointers.get(chosenPlayer);
+		const player = players.get(chosenPlayer);
 		drawPlayer(player);
 
 		ctx.beginPath();
@@ -110,10 +110,10 @@ window.requestAnimationFrame(function draw() {
 		ctx.rect(0, 0, canvas.width, canvas.height);
 		ctx.arc(player.x, player.y, 90, 0, 2 * Math.PI);
 		ctx.fill("evenodd");
-	} else if (pointers.size > 0) {
+	} else if (players.size > 0) {
 		// All players
 		description.hidden = true;
-		for (const player of pointers.values()) {
+		for (const player of players.values()) {
 			drawPlayer(player);
 		}
 	} else {
