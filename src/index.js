@@ -123,3 +123,11 @@ window.requestAnimationFrame(function draw() {
 
 	window.requestAnimationFrame(draw);
 });
+
+if ("serviceWorker" in navigator && location.hostname !== "localhost") {
+	window.addEventListener("load", () => {
+		navigator.serviceWorker.register("/sw.js").catch((err) => {
+			console.warn("ServiceWorker registration failed: ", err);
+		});
+	});
+}
