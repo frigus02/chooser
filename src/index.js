@@ -4,6 +4,7 @@ const RESET_DELAY_MS = 1000;
 
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
+const description = document.getElementById("description");
 
 const resizeCanvas = () => {
 	canvas.width = Math.floor(window.innerWidth);
@@ -100,6 +101,7 @@ window.requestAnimationFrame(function draw() {
 
 	if (chosenPlayer !== undefined) {
 		// Chosen Player
+		description.hidden = true;
 		const player = pointers.get(chosenPlayer);
 		drawPlayer(player);
 
@@ -108,11 +110,15 @@ window.requestAnimationFrame(function draw() {
 		ctx.rect(0, 0, canvas.width, canvas.height);
 		ctx.arc(player.x, player.y, 90, 0, 2 * Math.PI);
 		ctx.fill("evenodd");
-	} else {
+	} else if (pointers.size > 0) {
 		// All players
+		description.hidden = true;
 		for (const player of pointers.values()) {
 			drawPlayer(player);
 		}
+	} else {
+		// Help text
+		description.hidden = false;
 	}
 
 	window.requestAnimationFrame(draw);

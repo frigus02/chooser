@@ -2,4 +2,21 @@ body {
 	margin: 0;
 	padding: 0;
 	display: flex;
+	align-items: center;
+	width: 100vw;
+	height: 100vh;
+	justify-content: center;
+}
+
+#board {
+	top: 0;
+	left: 0;
+	position: fixed;
+}
+
+#description {
+	color: white;
+	z-index: 1;
+	text-align: center;
+	margin: 2em;
 }
