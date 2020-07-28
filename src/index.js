@@ -44,6 +44,20 @@ document.addEventListener("pointerup", (e) => {
 	}
 });
 
+// Prevent page from scrolling.
+// Chrome on Android immediately cancels pointer events if the page starts to
+// scroll up or down. Because of Chrome's hiding url bar, the page does actually
+// scroll, even though the page content is not enough to cause scroll bars.
+// Calling preventDefault on all touchmove events helps here, but feels like a
+// hack. Would be nice to find a better solution.
+document.addEventListener(
+	"touchmove",
+	(e) => {
+		e.preventDefault();
+	},
+	{ passive: false }
+);
+
 const pickUnusedColor = () => {
 	const alreadyChosenColors = Array.from(players.values()).map(
 		(p) => p.color
