@@ -27,22 +27,22 @@ document.addEventListener("pointerdown", (e) => {
 	triggerPlayerChoosing();
 });
 document.addEventListener("pointermove", (e) => {
-	if (players.has(e.pointerId)) {
-		players.set(e.pointerId, {
-			...players.get(e.pointerId),
-			x: e.clientX,
-			y: e.clientY,
-		});
+	const player = players.get(e.pointerId);
+	if (player) {
+		player.x = e.clientX;
+		player.y = e.clientY;
 	}
 });
-document.addEventListener("pointerup", (e) => {
+const removePointer = (e) => {
 	if (chosenPlayer === e.pointerId) {
 		triggerReset();
 	} else {
 		players.delete(e.pointerId);
 		triggerPlayerChoosing();
 	}
-});
+};
+document.addEventListener("pointerup", removePointer);
+document.addEventListener("pointercancel", removePointer);
 
 // Prevent page from scrolling.
 // Chrome on Android immediately cancels pointer events if the page starts to
