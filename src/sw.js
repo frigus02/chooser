@@ -1,7 +1,6 @@
 const CACHE_NAME = "v4";
 const CACHE_URLS = [
 	"/",
-	"/index.html",
 	"/index.css",
 	"/index.js",
 	"/favicon.ico",
