@@ -109,9 +109,7 @@ const drawPlayer = (player) => {
 
 window.requestAnimationFrame(function draw() {
 	// Reset
-	ctx.beginPath();
-	ctx.fillStyle = "black";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	if (chosenPlayer !== undefined) {
 		// Chosen Player
