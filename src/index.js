@@ -5,6 +5,7 @@ const RESET_DELAY_MS = 1000;
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const description = document.getElementById("description");
+const updateAvailable = document.getElementById("update-available");
 
 const resizeCanvas = () => {
 	canvas.width = Math.floor(window.innerWidth);
@@ -141,5 +142,8 @@ if ("serviceWorker" in navigator && location.hostname !== "localhost") {
 		navigator.serviceWorker.register("/sw.js").catch((err) => {
 			console.warn("ServiceWorker registration failed: ", err);
 		});
+	});
+	navigator.serviceWorker.addEventListener("controllerchange", () => {
+		updateAvailable.hidden = false;
 	});
 }

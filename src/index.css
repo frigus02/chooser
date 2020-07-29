@@ -7,17 +7,33 @@ body {
 	height: 100vh;
 	justify-content: center;
 	background-color: #000;
+	color: #fff;
+	font-family: sans-serif;
 }
 
 #board {
+	position: fixed;
 	top: 0;
 	left: 0;
-	position: fixed;
 }
 
 #description {
-	color: white;
 	z-index: 1;
 	text-align: center;
 	margin: 2em;
+}
+
+#update-available {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding: 1em;
+	margin: 0;
+	background-color: #333;
+}
+
+#update-available a {
+	color: #0ff;
 }
