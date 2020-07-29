@@ -73,11 +73,24 @@ const pickUnusedColor = () => {
 };
 
 let chosenPlayer;
+const chosenPlayerAnimation = {
+	startTime: 0,
+	startValue: 0,
+};
 const choosePlayer = () => {
 	if (players.size < MIN_PLAYERS) return;
 
 	const choosen = Math.floor(Math.random() * players.size);
 	chosenPlayer = Array.from(players.keys())[choosen];
+
+	const player = players.get(chosenPlayer);
+	chosenPlayerAnimation.startTime = Date.now();
+	chosenPlayerAnimation.startValue = Math.max(
+		player.x,
+		canvas.width - player.x,
+		player.y,
+		canvas.height - player.y
+	);
 };
 let choosePlayerTimeout;
 const triggerPlayerChoosing = () => {
@@ -109,6 +122,8 @@ const drawPlayer = (player) => {
 	ctx.fill();
 };
 
+const easeOutQuint = (t) => 1 + --t * t * t * t * t;
+
 window.requestAnimationFrame(function draw() {
 	// Reset
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -119,10 +134,20 @@ window.requestAnimationFrame(function draw() {
 		const player = players.get(chosenPlayer);
 		drawPlayer(player);
 
+		const { startTime, startValue } = chosenPlayerAnimation;
+		const endValue = 90;
+		const elapsed = Date.now() - startTime;
+		const duration = RESET_DELAY_MS;
+		const t = elapsed / duration;
+		const value =
+			t < 1
+				? startValue - (startValue - endValue) * easeOutQuint(t)
+				: endValue;
+
 		ctx.beginPath();
 		ctx.fillStyle = color(player);
 		ctx.rect(0, 0, canvas.width, canvas.height);
-		ctx.arc(player.x, player.y, 90, 0, 2 * Math.PI);
+		ctx.arc(player.x, player.y, value, 0, 2 * Math.PI);
 		ctx.fill("evenodd");
 	} else if (players.size > 0) {
 		// All players
