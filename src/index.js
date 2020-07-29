@@ -5,6 +5,7 @@ const RESET_DELAY_MS = 1000;
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const description = document.getElementById("description");
+const version = document.getElementById("version");
 const updateAvailable = document.getElementById("update-available");
 
 const resizeCanvas = () => {
@@ -145,5 +146,13 @@ if ("serviceWorker" in navigator && location.hostname !== "localhost") {
 	});
 	navigator.serviceWorker.addEventListener("controllerchange", () => {
 		updateAvailable.hidden = false;
+	});
+	navigator.serviceWorker.addEventListener("message", (e) => {
+		if (e.data.version) {
+			version.textContent = e.data.version;
+		}
+	});
+	navigator.serviceWorker.ready.then((sw) => {
+		sw.active.postMessage("version");
 	});
 }

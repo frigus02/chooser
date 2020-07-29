@@ -48,3 +48,9 @@ addEventListener("fetch", (event) => {
 		})
 	);
 });
+
+addEventListener("message", (event) => {
+	if (event.data === "version") {
+		event.source.postMessage({ version: CACHE_NAME });
+	}
+});
