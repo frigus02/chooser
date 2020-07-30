@@ -1,4 +1,4 @@
-const CACHE_NAME = "v5";
+const CACHE_NAME = "v6";
 const CACHE_URLS = [
 	"/",
 	"/index.css",
