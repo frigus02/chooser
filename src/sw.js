@@ -13,6 +13,11 @@ const CACHE_URLS = [
 	"/images/logo-192.png",
 	"/images/logo-192-opaque.png",
 	"/images/logo-384.png",
+	"/images/logo-maskable-48.png",
+	"/images/logo-maskable-96.png",
+	"/images/logo-maskable-144.png",
+	"/images/logo-maskable-192.png",
+	"/images/logo-maskable-384.png",
 ];
 
 addEventListener("install", (event) => {
