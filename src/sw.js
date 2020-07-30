@@ -8,12 +8,11 @@ const CACHE_URLS = [
 	"/images/logo-16.png",
 	"/images/logo-32.png",
 	"/images/logo-48.png",
-	"/images/logo-72.png",
 	"/images/logo-96.png",
 	"/images/logo-144.png",
-	"/images/logo-168.png",
 	"/images/logo-192.png",
 	"/images/logo-192-opaque.png",
+	"/images/logo-384.png",
 ];
 
 addEventListener("install", (event) => {

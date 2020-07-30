@@ -10,11 +10,10 @@ function CreatePNG([int]$DPI, [int]$Size) {
 CreatePNG 48 16
 CreatePNG 96 32
 CreatePNG 144 48
-CreatePNG 216 72
 CreatePNG 288 96
 CreatePNG 432 144
-CreatePNG 504 168
 CreatePNG 576 192
+CreatePNG 1152 384
 
 imconvert `
 	"$PSScriptRoot/../src/images/logo-16.png" `
