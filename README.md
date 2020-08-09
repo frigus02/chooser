@@ -2,6 +2,8 @@
 
 Player chooser web app. Every player places a finger on the screen. After 2 seconds the app picks one player at random. Helpful when choosing the starting player in a board game.
 
+![](./res/demo.gif)
+
 ## Development
 
 This project does not have any depencies or build steps. To start development, start a local webserver of your choice, serving the `src/` directory. Example with Python:
