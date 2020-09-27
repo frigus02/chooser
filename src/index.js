@@ -8,107 +8,19 @@ const description = document.getElementById("description");
 const version = document.getElementById("version");
 const updateAvailable = document.getElementById("update-available");
 
+const players = new Map();
+let chosenPlayer;
+const chosenPlayerAnimation = {
+	startTime: 0,
+	startValue: 0,
+};
+
 const resizeCanvas = () => {
 	canvas.width = Math.floor(window.innerWidth);
 	canvas.height = Math.floor(window.innerHeight);
 };
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
-
-const color = (index, alpha = 1) =>
-	`hsla(${index * 222.5 + 348}, 100%, 51.4%, ${alpha})`;
-
-const players = new Map();
-document.addEventListener("pointerdown", (e) => {
-	players.set(e.pointerId, {
-		x: e.clientX,
-		y: e.clientY,
-		color: pickUnusedColor(),
-	});
-
-	triggerPlayerChoosing();
-});
-document.addEventListener("pointermove", (e) => {
-	const player = players.get(e.pointerId);
-	if (player) {
-		player.x = e.clientX;
-		player.y = e.clientY;
-	}
-});
-const removePointer = (e) => {
-	if (chosenPlayer === e.pointerId) {
-		triggerReset();
-	} else {
-		players.delete(e.pointerId);
-		triggerPlayerChoosing();
-	}
-};
-document.addEventListener("pointerup", removePointer);
-document.addEventListener("pointercancel", removePointer);
-
-// Prevent page from scrolling.
-// Chrome on Android immediately cancels pointer events if the page starts to
-// scroll up or down. Because of Chrome's hiding url bar, the page does actually
-// scroll, even though the page content is not enough to cause scroll bars.
-// Calling preventDefault on all touchmove events helps here, but feels like a
-// hack. Would be nice to find a better solution.
-document.addEventListener(
-	"touchmove",
-	(e) => {
-		e.preventDefault();
-	},
-	{ passive: false }
-);
-
-const pickUnusedColor = () => {
-	const alreadyChosenColors = Array.from(players.values()).map(
-		(p) => p.color
-	);
-	let color = 0;
-	while (alreadyChosenColors.includes(color)) {
-		color++;
-	}
-
-	return color;
-};
-
-let chosenPlayer;
-const chosenPlayerAnimation = {
-	startTime: 0,
-	startValue: 0,
-};
-const choosePlayer = () => {
-	if (players.size < MIN_PLAYERS) return;
-
-	const choosen = Math.floor(Math.random() * players.size);
-	chosenPlayer = Array.from(players.keys())[choosen];
-
-	const player = players.get(chosenPlayer);
-	chosenPlayerAnimation.startTime = Date.now();
-	chosenPlayerAnimation.startValue = Math.max(
-		player.x,
-		canvas.width - player.x,
-		player.y,
-		canvas.height - player.y
-	);
-};
-let choosePlayerTimeout;
-const triggerPlayerChoosing = () => {
-	window.clearTimeout(choosePlayerTimeout);
-	if (chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
-		choosePlayerTimeout = window.setTimeout(choosePlayer, CHOOSE_DELAY_MS);
-	}
-};
-
-const reset = () => {
-	chosenPlayer = undefined;
-	players.clear();
-};
-let resetTimeout;
-const triggerReset = () => {
-	window.clearTimeout(resetTimeout);
-	resetTimeout = window.setTimeout(reset, RESET_DELAY_MS);
-};
 
 const drawPlayer = (player) => {
 	ctx.beginPath();
@@ -124,44 +36,173 @@ const drawPlayer = (player) => {
 
 const easeOutQuint = (t) => 1 + --t * t * t * t * t;
 
-window.requestAnimationFrame(function draw() {
-	// Reset
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+const draw = (function () {
+	const draw = () => {
+		// Reset
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	if (chosenPlayer !== undefined) {
-		// Chosen Player
-		description.hidden = true;
-		const player = players.get(chosenPlayer);
-		drawPlayer(player);
-
-		const { startTime, startValue } = chosenPlayerAnimation;
-		const endValue = 90;
-		const elapsed = Date.now() - startTime;
-		const duration = RESET_DELAY_MS;
-		const t = elapsed / duration;
-		const value =
-			t < 1
-				? startValue - (startValue - endValue) * easeOutQuint(t)
-				: endValue;
-
-		ctx.beginPath();
-		ctx.fillStyle = color(player);
-		ctx.rect(0, 0, canvas.width, canvas.height);
-		ctx.arc(player.x, player.y, value, 0, 2 * Math.PI);
-		ctx.fill("evenodd");
-	} else if (players.size > 0) {
-		// All players
-		description.hidden = true;
-		for (const player of players.values()) {
+		if (chosenPlayer !== undefined) {
+			// Chosen Player
+			description.hidden = true;
+			const player = players.get(chosenPlayer);
 			drawPlayer(player);
+
+			const { startTime, startValue } = chosenPlayerAnimation;
+			const endValue = 90;
+			const elapsed = Date.now() - startTime;
+			const duration = RESET_DELAY_MS;
+			const t = elapsed / duration;
+			const value =
+				t < 1
+					? startValue - (startValue - endValue) * easeOutQuint(t)
+					: endValue;
+
+			ctx.beginPath();
+			ctx.fillStyle = color(player);
+			ctx.rect(0, 0, canvas.width, canvas.height);
+			ctx.arc(player.x, player.y, value, 0, 2 * Math.PI);
+			ctx.fill("evenodd");
+
+			return t < 1;
+		} else if (players.size > 0) {
+			// All players
+			description.hidden = true;
+			for (const player of players.values()) {
+				drawPlayer(player);
+			}
+
+			return false;
+		} else {
+			// Help text
+			description.hidden = false;
+			return false;
 		}
-	} else {
-		// Help text
-		description.hidden = false;
+	};
+
+	let running = false;
+	const run = () => {
+		if (draw()) {
+			window.requestAnimationFrame(run);
+		} else {
+			running = false;
+		}
+	};
+	return () => {
+		if (!running) {
+			window.requestAnimationFrame(run);
+			running = true;
+		}
+	};
+})();
+
+const color = (index, alpha = 1) =>
+	`hsla(${index * 222.5 + 348}, 100%, 51.4%, ${alpha})`;
+
+const pickUnusedColor = () => {
+	const alreadyChosenColors = Array.from(players.values()).map(
+		(p) => p.color
+	);
+	let color = 0;
+	while (alreadyChosenColors.includes(color)) {
+		color++;
 	}
 
-	window.requestAnimationFrame(draw);
+	return color;
+};
+
+const addPlayer = (id, x, y) => {
+	const color = pickUnusedColor();
+	players.set(id, { x, y, color });
+	draw();
+};
+
+const updatePlayer = (id, x, y) => {
+	const player = players.get(id);
+	if (player) {
+		player.x = x;
+		player.y = y;
+		draw();
+	}
+};
+
+const removePlayer = (id) => {
+	players.delete(id);
+	draw();
+};
+
+const choosePlayer = (function () {
+	const choosePlayer = () => {
+		if (players.size < MIN_PLAYERS) return;
+
+		const choosen = Math.floor(Math.random() * players.size);
+		chosenPlayer = Array.from(players.keys())[choosen];
+
+		const player = players.get(chosenPlayer);
+		chosenPlayerAnimation.startTime = Date.now();
+		chosenPlayerAnimation.startValue = Math.max(
+			player.x,
+			canvas.width - player.x,
+			player.y,
+			canvas.height - player.y
+		);
+
+		draw();
+	};
+
+	let timeout;
+	return () => {
+		window.clearTimeout(timeout);
+		if (chosenPlayer === undefined && players.size >= MIN_PLAYERS) {
+			timeout = window.setTimeout(choosePlayer, CHOOSE_DELAY_MS);
+		}
+	};
+})();
+
+const reset = (function () {
+	const reset = () => {
+		chosenPlayer = undefined;
+		players.clear();
+		draw();
+	};
+
+	let timeout;
+	return () => {
+		window.clearTimeout(timeout);
+		timeout = window.setTimeout(reset, RESET_DELAY_MS);
+	};
+})();
+
+document.addEventListener("pointerdown", (e) => {
+	addPlayer(e.pointerId, e.clientX, e.clientY);
+	choosePlayer();
 });
+document.addEventListener("pointermove", (e) => {
+	updatePlayer(e.pointerId, e.clientX, e.clientY);
+});
+const onPointerRemove = (e) => {
+	if (chosenPlayer === e.pointerId) {
+		reset();
+	} else {
+		removePlayer(e.pointerId);
+		choosePlayer();
+	}
+};
+document.addEventListener("pointerup", onPointerRemove);
+document.addEventListener("pointercancel", onPointerRemove);
+
+// Prevent page from scrolling.
+// Chrome on Android immediately cancels pointer events if the page starts to
+// scroll up or down. Because of Chrome's hiding url bar, the page does actually
+// scroll, even though the page content is not enough to cause scroll bars.
+// Calling preventDefault on all touchmove events helps here, but feels like a
+// hack. Would be nice to find a better solution.
+document.addEventListener(
+	"touchmove",
+	(e) => {
+		e.preventDefault();
+	},
+	{ passive: false }
+);
 
 if ("serviceWorker" in navigator && location.hostname !== "localhost") {
 	window.addEventListener("load", () => {
