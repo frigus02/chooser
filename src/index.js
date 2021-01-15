@@ -5,6 +5,7 @@ const RESET_DELAY_MS = 1000;
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const description = document.getElementById("description");
+const ariaLive = document.getElementById("live-region");
 const version = document.getElementById("version");
 const updateAvailable = document.getElementById("update-available");
 
@@ -13,6 +14,17 @@ let chosenPlayer;
 const chosenPlayerAnimation = {
 	startTime: 0,
 	startValue: 0,
+};
+
+const ariaLiveLog = (msg) => {
+	const element = document.createElement("div");
+	element.textContent = msg;
+	ariaLive.append(element);
+};
+
+const ariaLiveReset = () => {
+	ariaLive.innerHTML = "";
+	ariaLiveLog("Reset");
 };
 
 const resizeCanvas = () => {
@@ -114,6 +126,7 @@ const addPlayer = (id, x, y) => {
 	const color = pickUnusedColor();
 	players.set(id, { x, y, color });
 	draw();
+	ariaLiveLog(`Player ${id} added`);
 };
 
 const updatePlayer = (id, x, y) => {
@@ -128,6 +141,7 @@ const updatePlayer = (id, x, y) => {
 const removePlayer = (id) => {
 	players.delete(id);
 	draw();
+	ariaLiveLog(`Player ${id} removed`);
 };
 
 const choosePlayer = (function () {
@@ -147,6 +161,8 @@ const choosePlayer = (function () {
 		);
 
 		draw();
+
+		ariaLiveLog(`Player ${chosenPlayer} chosen`);
 	};
 
 	let timeout;
@@ -162,6 +178,7 @@ const reset = (function () {
 	const reset = () => {
 		chosenPlayer = undefined;
 		players.clear();
+		ariaLiveReset();
 		draw();
 	};
 
